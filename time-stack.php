@@ -38,11 +38,18 @@ class HM_Time_Stack {
 	public static function set_data( $data ) {
 
 		if ( function_exists( 'apc_store' ) && apc_store( '__test', '123' ) ) {
-			error_log( 'setting data' );
-			return error_log( apc_store( '_hm_all_stacks', $data, 60 ) );
+			if ( defined( 'DEBUG_TIME_STACK' ) && DEBUG_TIME_STACK )
+				error_log( 'TimeStackPlugin: Setting data in APC' );
+			$set_result = apc_store( '_hm_all_stacks', $data, 60 );
 		} else {
-			return wp_cache_set( '_hm_all_stacks', $data, null, 60 );
+			if ( defined( 'DEBUG_TIME_STACK' ) && DEBUG_TIME_STACK )
+				error_log( 'TimeStackPlugin: Setting data in WP Cache' );
+			$set_result = wp_cache_set( '_hm_all_stacks', $data, null, 60 );
 		}
+		if ( defined( 'DEBUG_TIME_STACK' ) && DEBUG_TIME_STACK )
+			error_log( "TimeStackPlugin: Set data? " . (int) $set_result );
+
+		return $set_result;
 	}
 	
 	function __construct() {
